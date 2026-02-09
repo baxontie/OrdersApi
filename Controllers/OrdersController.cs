@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OrdersApi.Models;
 using OrdersApi.Services;
+using OrdersApi.Dtos;
 
 namespace OrdersApi.Controllers;
 
@@ -15,17 +16,51 @@ public class OrdersController : ControllerBase
         _service = service;
     }
 
-    // TODO: POST /api/orders
-    // Accept OrderCreateDto
-    // Save order
-    // Return CreatedAtAction
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] OrderCreateDto dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
-    // TODO: GET /api/orders
-    // Query params:
-    //  page, limit
-    //  status
-    //  minAmount, maxAmount
-    //  fromDate, toDate
-    // Return:
-    //  items + totalCount + page + limit
+        var order = new Order
+        {
+            CustomerName = dto.CustomerName,
+            Status = dto.Status,
+            Amount = dto.Amount,
+            CreatedAt = dto.CreatedAt ?? DateTime.UtcNow
+        };
+
+        var created = await _service.CreateOrderAsync(order);
+
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll(
+        int page = 1,
+        int limit = 10,
+        OrderStatus? status = null,
+        decimal? minAmount = null,
+        decimal? maxAmount = null,
+        DateTime? fromDate = null,
+        DateTime? toDate = null)
+    {
+        var result = await _service.GetOrdersAsync(
+            page,
+            limit,
+            status,
+            minAmount,
+            maxAmount,
+            fromDate,
+            toDate);
+
+        return Ok(result);
+    }
+
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        // Optional: Copilot can implement this too
+        return NotFound();
+    }
 }
