@@ -43,7 +43,7 @@ public class OrderService
     /// <summary>
     /// Результат постраничного запроса.
     /// </summary>
-    public sealed record PagedResult<T>(IEnumerable<T> Items, int TotalCount, int Page, int Limit);
+    public sealed record PagedResult<T>(IEnumerable<T> Items, int TotalCount, int Page, int Limit,int TotalPages,bool HasNextPage,bool HasPreviousPage);
 
     /// <summary>
     /// Возвращает список заказов с фильтрацией и пагинацией.
