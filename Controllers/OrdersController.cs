@@ -45,6 +45,19 @@ public class OrdersController : ControllerBase
         DateTime? fromDate = null,
         DateTime? toDate = null)
     {
+        // Validation
+        if (page < 1)
+            return BadRequest("Query parameter 'page' must be greater than or equal to 1.");
+
+        if (limit < 1 || limit > 100)
+            return BadRequest("Query parameter 'limit' must be between 1 and 100.");
+
+        if (minAmount.HasValue && maxAmount.HasValue && minAmount > maxAmount)
+            return BadRequest("Query parameter 'minAmount' must be less than or equal to 'maxAmount'.");
+
+        if (fromDate.HasValue && toDate.HasValue && fromDate > toDate)
+            return BadRequest("Query parameter 'fromDate' must be less than or equal to 'toDate'.");
+
         var result = await _service.GetOrdersAsync(
             page,
             limit,
