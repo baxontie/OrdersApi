@@ -92,6 +92,10 @@ public class OrderService
 
         var totalCount = await query.CountAsync().ConfigureAwait(false);
 
+        var totalPages = (int)Math.Ceiling(totalCount / (double)limit);
+        var hasNextPage = page < totalPages;
+        var hasPreviousPage = page > 1 && totalPages > 0;
+
         var items = await query
             .OrderByDescending(o => o.CreatedAt)
             .Skip((page - 1) * limit)
@@ -99,6 +103,14 @@ public class OrderService
             .ToListAsync()
             .ConfigureAwait(false);
 
-        return new PagedResult<Order>(items, totalCount, page, limit);
+        return new PagedResult<Order>(
+            items,
+            totalCount,
+            page,
+            limit,
+            totalPages,
+            hasNextPage,
+            hasPreviousPage
+        );
     }
 }
